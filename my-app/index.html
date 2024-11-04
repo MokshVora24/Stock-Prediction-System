@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction App</title>
+    <script>
+        async function predictStock() {
+            const ticker = document.getElementById("ticker").value;
+            
+            // Basic validation to ensure ticker is entered
+            if (!ticker) {
+                document.getElementById("result").textContent = "Please enter a stock ticker.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/predict/${ticker}`); // Ensure this matches the Flask route
+                
+                // Handle successful prediction
+                if (response.ok) {
+                    const data = await response.json();
+                    const direction = data.classification_prediction === 1 ? 'Up' : 'Down';
+                    document.getElementById("result").textContent = `Prediction for ${ticker}: Direction is ${direction}, Predicted Closing Price: $${data.regression_prediction.toFixed(2)}`;
+                
+                // Display error message for any issue
+                } else {
+                    const errorData = await response.json();
+                    document.getElementById("result").textContent = `Error: ${errorData.error}`;
+                }
+            } catch (error) {
+                document.getElementById("result").textContent = `Network error: ${error}`;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Stock Prediction App</h1>
+    <label for="ticker">Enter Stock Ticker:</label>
+    <input type="text" id="ticker" placeholder="e.g., AAPL">
+    <button onclick="predictStock()">Predict</button>
+    <p id="result"></p>
+</body>
+</html>
